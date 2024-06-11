@@ -18,4 +18,8 @@ $: ticks = xScale.ticks(4)
         <line x1="0" x2="0" y1="0" y2={height} stroke="hsla(215, 15%, 91%, 1)" />
     </g>
 {/each}
+<text class="axis-title" x={width} y={height}
+text-anchor="end" dominant-baseline="hanging" dy="4">
+    Happiness, out of 10 &rarr
+</text>
 </g>

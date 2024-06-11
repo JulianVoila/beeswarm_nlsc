@@ -47,7 +47,7 @@ $: {
   const margin = {
     top: 0,
     right: 0,
-    bottom: 20,
+    bottom: 25,
     left: 0,
   };
 
@@ -84,14 +84,18 @@ $: {
       .range(width < 568 ? [2,6]:[3,8])
 
   import AxisX from "$components/AxisX.svelte";
+  import AxisY from "$components/AxisY.svelte";
 
+  import Legend from "$components/Legend.svelte";
 </script>
 
-
+<h1>The Happiest Countries in the World</h1>
+<Legend {colorScale} />
 <div class="chart-container" bind:clientWidth={width}>
   <svg {width} {height}>
     <g class="inner-chart" transform="translate({margin.left}, {margin.top})">
       <AxisX xScale={xScale} height={innerHeight} width={innerWidth}/>
+      <AxisY yScale={yScale} height={innerHeight} width={innerWidth}/>
       {#each nodes as node}
         <circle cx={node.x} cy={node.y} r={radiusScale(node.happiness)} 
         fill={colorScale(node.continent)} stroke="black" />
@@ -99,3 +103,20 @@ $: {
     </g>
   </svg>
 </div>
+
+<style>
+:global(.tick text, .axis-title){
+  font-size: 12px;
+  font-weight: 400;
+  user-select: none;
+  fill: hsla(212, 10%, 53%, 1)
+}
+
+h1{
+  font-size: 22px;
+  margin: 0 0 6px 0;
+  font-weight: 600;
+  text-align: center;
+}
+
+</style>
