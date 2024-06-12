@@ -7,6 +7,7 @@
   import { extent } from "d3-array";
   import { each } from "svelte/internal";
   import { mean, rollups } from "d3-array";
+  import { fade } from "svelte/transition"
 
 
   const RADIUS = 5;
@@ -87,21 +88,68 @@ $: {
   import AxisY from "$components/AxisY.svelte";
 
   import Legend from "$components/Legend.svelte";
+  import Tooltip from "$components/Tooltip.svelte";
+
+  let hovered;
+  let hoveredContinent;
+
+
 </script>
 
 <h1>The Happiest Countries in the World</h1>
-<Legend {colorScale} />
+<Legend {colorScale}  bind:hoveredContinent/>
 <div class="chart-container" bind:clientWidth={width}>
   <svg {width} {height}>
-    <g class="inner-chart" transform="translate({margin.left}, {margin.top})">
+
+   <!-- Reference line -->
+   {#if hovered}
+   <line
+       transition:fade
+       x1={hovered.x}
+       x2={hovered.x}
+       y1={height - margin.bottom}
+       y2={hovered.y + margin.top + radiusScale(hovered.happiness)}
+       stroke={colorScale(hovered.continent)}
+       stroke-width="2"
+   />
+{/if}
+    
+    <g class="inner-chart" transform="translate({margin.left}, {margin.top})"
+    on:mouseleave={() => (hovered=null)}>
       <AxisX xScale={xScale} height={innerHeight} width={innerWidth}/>
       <AxisY yScale={yScale} height={innerHeight} width={innerWidth}/>
-      {#each nodes as node}
-        <circle cx={node.x} cy={node.y} r={radiusScale(node.happiness)} 
-        fill={colorScale(node.continent)} stroke="black" />
-      {/each}
+
+
+    {#each nodes as node, i}
+    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+    <circle
+        cx={node.x}
+        cy={node.y}
+        r={radiusScale(node.happiness)}
+        stroke={hovered
+        ? hovered === node
+            ? "black"
+            : "transparent"
+        : "#00000090"}
+        fill={colorScale(node.continent)}
+        title={node.country}
+        opacity={hovered
+        ? hovered === node
+            ? 1
+            : 0.3
+        : 1}
+        on:mouseover={() => (hovered = node)}
+        on:focus={() => (hovered = node)}
+        tabindex="0"
+    />
+{/each}
     </g>
   </svg>
+
+  {#if hovered}
+  <Tooltip data={hovered} {colorScale} {width}/>
+  {/if}
+
 </div>
 
 <style>
@@ -117,6 +165,11 @@ h1{
   margin: 0 0 6px 0;
   font-weight: 600;
   text-align: center;
+}
+
+circle {
+    transition: stroke 300ms ease, opacity 300ms ease;
+    cursor: pointer;
 }
 
 </style>

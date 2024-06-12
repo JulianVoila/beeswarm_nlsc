@@ -1,13 +1,25 @@
 <script>
     export let colorScale;
+    export let hoveredContinent;
 
     colorScale.domain()
     colorScale.range()
 </script>
 
-<div class="legend">
+<div class="legend"
+on:mouseleave={() => {
+hoveredContinent = null;
+}}
+>
     {#each colorScale.domain() as continent}
-        <p> 
+        <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+        <p 
+        on:mouseover={() => {
+        hoveredContinent = continent;
+        }}
+        class:unhovered = {hoveredContinent &&
+        hoveredContinent !== continent }
+        > 
             <span style="background-color:{colorScale(continent)}"/>
             {continent} 
         </p>
@@ -39,6 +51,12 @@ p{
     text-transform: uppercase;
     align-items: center;
     column-gap: 3px;
+    transition: opacity 300ms ease;
+    cursor: pointer;
+}
+
+.unhovered{
+  opacity: 0.3;   
 }
 
 </style>
