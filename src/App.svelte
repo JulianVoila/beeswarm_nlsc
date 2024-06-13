@@ -121,7 +121,7 @@ let groupByContinent = false
 {/if}
     
     <g class="inner-chart" transform="translate({margin.left}, {margin.top})"
-    on:mouseleave={() => (hovered=null)}>
+    on:mouseleave={() => (hovered = null)}>
       <AxisX xScale={xScale} height={innerHeight} width={innerWidth}/>
       <AxisY yScale={yScale} {groupByContinent}/>
 
