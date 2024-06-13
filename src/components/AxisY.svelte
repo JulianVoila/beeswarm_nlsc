@@ -1,7 +1,10 @@
 <script>
+
+    import { fade } from "svelte/transition";
+
+
     export let yScale;
-    export let width;
-    export let height;
+    export let groupByContinent
 
     const ticks = yScale.domain()
 
@@ -9,9 +12,13 @@
 
 
 <g class="axis y">
-    {#each ticks as tick}
-        <g class="tick" transform="translate(0, {yScale(tick)})"> 
-            <text> {tick} </text>
+    {#each ticks as tick, index}
+        {#if groupByContinent}
+        <g class="tick" transition:fade={{ delay: index * 100 }}> 
+            <text y={yScale(tick)} x={0}> 
+                {tick} 
+            </text>
         </g>
+        {/if}
     {/each}
     </g>

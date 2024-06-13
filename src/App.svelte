@@ -8,8 +8,8 @@
   import { each } from "svelte/internal";
   import { mean, rollups } from "d3-array";
   import { fade } from "svelte/transition"
-
-
+  import { group, index } from "d3-array";
+    
   const RADIUS = 5;
   const simulation = forceSimulation(data)
 
@@ -31,7 +31,7 @@ $: {
     .force(
       "y",
       forceY()
-        .y((d) => yScale(d.continent))
+        .y((d) =>  groupByContinent ? yScale(d.continent) : innerHeight/2)
         .strength(0.04),
     )
     .force("collide", forceCollide().radius(d => radiusScale(d.happiness)))
@@ -86,19 +86,25 @@ $: {
 
   import AxisX from "$components/AxisX.svelte";
   import AxisY from "$components/AxisY.svelte";
-
   import Legend from "$components/Legend.svelte";
   import Tooltip from "$components/Tooltip.svelte";
 
   let hovered;
   let hoveredContinent;
 
-
+let groupByContinent = false
 </script>
 
 <h1>The Happiest Countries in the World</h1>
 <Legend {colorScale}  bind:hoveredContinent/>
-<div class="chart-container" bind:clientWidth={width}>
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div class="chart-container" bind:clientWidth={width}
+ on:click={() => {
+  groupByContinent = !groupByContinent;
+  hovered = null;
+ }}
+ 
+ >
   <svg {width} {height}>
 
    <!-- Reference line -->
@@ -117,7 +123,7 @@ $: {
     <g class="inner-chart" transform="translate({margin.left}, {margin.top})"
     on:mouseleave={() => (hovered=null)}>
       <AxisX xScale={xScale} height={innerHeight} width={innerWidth}/>
-      <AxisY yScale={yScale} height={innerHeight} width={innerWidth}/>
+      <AxisY yScale={yScale} {groupByContinent}/>
 
 
     {#each nodes as node, i}
@@ -126,21 +132,24 @@ $: {
         cx={node.x}
         cy={node.y}
         r={radiusScale(node.happiness)}
-        stroke={hovered
-        ? hovered === node
+        stroke={hovered || hoveredContinent
+        ? hovered === node || hoveredContinent === node.continent
             ? "black"
             : "transparent"
         : "#00000090"}
         fill={colorScale(node.continent)}
         title={node.country}
-        opacity={hovered
-        ? hovered === node
+        opacity={hovered || hoveredContinent
+        ? hovered === node || hoveredContinent === node.continent
             ? 1
             : 0.3
         : 1}
         on:mouseover={() => (hovered = node)}
         on:focus={() => (hovered = node)}
         tabindex="0"
+        on:click={(e) => {
+        e.stopPropagation();
+        }}
     />
 {/each}
     </g>
