@@ -128,7 +128,8 @@ let groupByContinent = false
 
     {#each nodes as node, i}
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <circle
+    <circle 
+    in:fade={{ delay: 350 + i * 10}}
         cx={node.x}
         cy={node.y}
         r={radiusScale(node.happiness)}
